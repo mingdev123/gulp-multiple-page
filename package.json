@@ -2,7 +2,7 @@
   "name": "gulp-multiple-page",
   "version": "1.0.0",
   "description": "gulp多页面打包配置",
-  "author": "zhouzhiming <hx0011920@hengxinyongli.com>",
+  "author": "mingdev <mingdev@163.com>",
   "private": true,
   "license": "MIT",
   "scripts": {
