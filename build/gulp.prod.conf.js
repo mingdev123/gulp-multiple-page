@@ -11,5 +11,5 @@ const runSequence = require('run-sequence').use(gulp)
 
 // 构建整个项目
 gulp.task('build', () => {
-  runSequence('clean', 'styles', 'scripts', 'images', 'fonts', 'html')
+  runSequence('clean', 'config', 'styles', 'scripts', 'images', 'fonts', 'html')
 })

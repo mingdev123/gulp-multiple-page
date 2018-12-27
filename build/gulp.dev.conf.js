@@ -9,19 +9,20 @@ require('./gulp.base.conf')
 const gulp = require('gulp')
 const runSequence = require('run-sequence').use(gulp)
 const browserSync = require('browser-sync').create()
-const {dev: {autoOpenBrowser, port, assetsRoot}} = require('../config')
+const {dev: {autoOpenBrowser, port, assetsRoot, proxyTable}} = require('../config')
 
 const reload = browserSync.reload
 
 //启动服务器
 gulp.task('serve', () => {
-  runSequence('clean', 'styles', 'scripts', 'images', 'fonts', 'html', () => {
+  runSequence('clean', 'config', 'styles', 'scripts', 'images', 'fonts', 'html', () => {
     browserSync.init({
       open: autoOpenBrowser,
       notify: false,
       port: port,
       server: {
-        baseDir: [assetsRoot]
+        baseDir: [assetsRoot],
+        middleware: proxyTable
       }
     })
 

@@ -7,13 +7,32 @@ const gulp = require('gulp')
 const $ = require('gulp-load-plugins')()
 const reload = require('browser-sync').create().reload
 const del = require('del')
+const gutil = require('gulp-util')
 const vinylPaths = require('vinyl-paths')
-const {dev, build} = require('../config')
+const {dev, build, env} = require('../config')
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const isDevelopment = NODE_ENV === 'development'
-const dest = (dir = '') => isDevelopment ? gulp.dest(`${dev.assetsRoot}${dir}`) : gulp.dest(`${build.assetsRoot}${dir}`)
+const dest = (dir = '') => isDevelopment ? gulp.dest(`${dev.assetsRoot}${dir}`) : gulp.dest(`${build.assetsRoot}/${build.envName}${dir}`)
 const assetsDest = (dir = '') => isDevelopment ? dest(`/${dev.assetsSubDirectory}${dir}`) : dest(`/${build.assetsSubDirectory}${dir}`)
+
+//获取配置信息
+gulp.task('config', () => {
+  const stringSrc = (path, string) => {
+    const src = require('stream').Readable({objectMode: true})
+    src._read = function () {
+      this.push(new gutil.File({path, contents: new Buffer.from(string)}))
+      this.push(null)
+    }
+    return src
+  }
+  //开发的时候使用代理，为防止报错这里添加空对象
+  const cStr = JSON.stringify(isDevelopment ? {} : env[build.envName] || {})
+  const configStr = `window.appConfig=${cStr}`
+  //生成config.js文件
+  return stringSrc('config.js', configStr)
+    .pipe(assetsDest('/scripts'))
+})
 
 // 样式处理
 gulp.task('styles', () => {
@@ -57,7 +76,7 @@ gulp.task('html', () => {
   return gulp
     .src('src/**/*.html')
     .pipe($.useref({
-      searchPath: [isDevelopment ? dev.assetsRoot : build.assetsRoot, '.'],
+      searchPath: [isDevelopment ? dev.assetsRoot : `${build.assetsRoot}/${build.envName}`, '.'],
       transformTargetPath: path => {
         const nowDate = Date.now()
         const transPath = p => {
@@ -101,4 +120,4 @@ gulp.task('html', () => {
     .pipe(dest('/'))
 })
 
-gulp.task('clean', del.bind(null, [$.if(isDevelopment, dev.assetsRoot, build.assetsRoot)]))
+gulp.task('clean', del.bind(null, [$.if(isDevelopment, dev.assetsRoot, `${build.assetsRoot}/${build.envName}`)]))
